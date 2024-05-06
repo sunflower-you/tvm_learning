@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 import logging
 import multiprocessing as mp
+from multiprocessing import managers
 import numpy as np
 import tvm
 import tvm.driver
@@ -31,7 +32,18 @@ from .. import analysis as _analysis
 from .. import build_module as _build_module
 from ...contrib import graph_executor
 from .kl_divergence import _find_scale_by_kl
+from .range_estimators import PercentileEstimator
 
+
+class MyManager(managers.BaseManager):
+    """
+    multiprocessing manager
+    """
+    pass
+
+MyManager.register("PercentileEstimator", PercentileEstimator)
+manager = MyManager()
+manager.start()
 
 def _get_profile_runtime(mod):
     func = mod["main"]
